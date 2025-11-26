@@ -5,8 +5,8 @@ Backend Java Spring Boot để điều khiển cửa tự động qua MQTT HiveM
 ## Cấu hình MQTT
 - **Server**: `6e49800075574b02a0817f9863e74cc1.s1.eu.hivemq.cloud`
 - **Port**: `8883` (SSL)
-- **Username**: `dinhkien`
-- **Password**: `Kien10@01`
+- **Username**: `tranduy`
+- **Password**: `Duy1234`
 
 ## MQTT Topics
 - `gate/status` - Nhận trạng thái cửa từ ESP8266
