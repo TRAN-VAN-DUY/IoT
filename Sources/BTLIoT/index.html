@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cửa Siêu Thị Tự Động – Dashboard</title>
+
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(145deg, #d7e9f7, #ffffff);
+        margin: 0;
+        padding: 30px;
+        animation: fadeIn 0.7s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #1d3557;
+        font-size: 32px;
+        font-weight: 800;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: white;
+        padding: 22px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border-left: 8px solid #1d3557;
+        transition: 0.25s ease;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        background: #457b9d;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background: #1d3557;
+      }
+
+      .status-open {
+        color: #2a9d8f;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .status-close {
+        color: #e63946;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .counter-change {
+        animation: popCount 0.3s ease;
+      }
+
+      @keyframes popCount {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.25);
+          color: #1d3557;
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* Radio button styling */
+      input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #457b9d;
+      }
+
+      .mode-section {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 4px solid #457b9d;
+      }
+
+      .mode-section h3 {
+        margin: 0 0 10px 0;
+        color: #1d3557;
+        font-size: 16px;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 5px;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+      }
+
+      .radio-option:hover {
+        background-color: rgba(69, 123, 157, 0.1);
+      }
+
+      .radio-option span {
+        margin-left: 8px;
+        font-weight: 500;
+      }
+
+      .door-box {
+        margin: 20px auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 18px;
+        width: 340px;
+        height: 380px;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid #a8dadc;
+      }
+
+      .door {
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(145deg, #74b9ff, #4ea3ff);
+        position: absolute;
+        top: 0;
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        border-radius: 4px;
+      }
+
+      .left-door {
+        left: 0;
+      }
+      .right-door {
+        right: 0;
+      }
+
+      .open-left {
+        transform: translateX(-100%);
+      }
+      .open-right {
+        transform: translateX(100%);
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Cửa Siêu Thị Tự Động – Dashboard Giám Sát</h1>
+
+    <div class="dashboard">
+      <div class="card">
+        <h2>Điều khiển cửa</h2>
+        <p id="doorStatus" class="status-close">Cửa đang đóng</p>
+
+        <!-- Chế độ hoạt động -->
+        <div class="mode-section">
+          <h3>Chế độ hoạt động:</h3>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="auto" id="autoMode" checked onchange="changeMode()">
+            <span>Tự động (theo cảm biến)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="manual" id="manualMode" onchange="changeMode()">
+            <span>Thủ công (chỉ bấm nút)</span>
+          </label>
+        </div>
+
+        <!-- Nút điều khiển -->
+        <div id="manualControls">
+          <button class="btn" id="openBtn" onclick="manualOpen()">Mở cửa</button>
+          <button class="btn" id="closeBtn" onclick="manualClose()">Đóng cửa</button>
+        </div>
+        
+        <p id="modeInfo" style="font-size: 12px; color: #666; margin-top: 10px;">
+          Chế độ tự động: Cửa mở khi phát hiện người (5-10cm), tự đóng sau 5s
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Dữ liệu cảm biến</h2>
+        <p>Khoảng cách: <span id="distance">--</span> cm</p>
+      </div>
+
+      <div class="card">
+        <h2>Đếm người</h2>
+        <p>Người vào: <span id="peopleIn">0</span></p>
+        <p>Người ra: <span id="peopleOut">0</span></p>
+      </div>
+    </div>
+
+    <h2>Mô phỏng cửa</h2>
+    <div class="door-box">
+      <div id="leftDoor" class="door left-door"></div>
+      <div id="rightDoor" class="door right-door"></div>
+    </div>
+
+    <script>
+      let doorOpen = false;
+      let peopleIn = 0;
+      let peopleOut = 0;
+      let lastDistance = 999;
+      let currentMode = "auto"; // auto hoặc manual
+      let lastCommandTime = 0; // Debouncing cho commands
+
+      // Test kết nối khi load trang
+      function testConnection() {
+        console.log("Testing connection to backend...");
+        fetch("http://localhost:8080/door/status")
+          .then(response => response.json())
+          .then(data => {
+            console.log("Backend connection OK:", data);
+            document.title = "CONNECTED - " + document.title;
+          })
+          .catch(error => {
+            console.error("Backend connection failed:", error);
+            document.title = "DISCONNECTED - " + document.title;
+            alert("Không thể kết nối đến backend!\nKiểm tra:\n1. Java backend có chạy không?\n2. Port 8080 có available không?");
+          });
+      }
+
+      // Chạy test khi load trang
+      window.onload = function() {
+        testConnection();
+        updateModeDisplay();
+      };
+
+      // Thay đổi chế độ hoạt động
+      function changeMode() {
+        const autoMode = document.getElementById("autoMode").checked;
+        const manualMode = document.getElementById("manualMode").checked;
+        
+        if (autoMode) {
+          currentMode = "auto";
+          console.log("Switched to AUTO mode");
+          sendModeCommand("AUTO");
+        } else if (manualMode) {
+          currentMode = "manual";
+          console.log("Switched to MANUAL mode");
+          sendModeCommand("MANUAL");
+        }
+        
+        updateModeDisplay();
+      }
+
+      // Cập nhật hiển thị theo chế độ
+      function updateModeDisplay() {
+        const modeInfo = document.getElementById("modeInfo");
+        const manualControls = document.getElementById("manualControls");
+        
+        if (currentMode === "auto") {
+          modeInfo.innerHTML = "Chế độ tự động: Cửa mở khi phát hiện người (5-10cm), tự đóng sau 5s";
+          manualControls.style.opacity = "0.6";
+        } else {
+          modeInfo.innerHTML = "Chế độ thủ công: Cửa chỉ mở/đóng khi bấm nút, không theo cảm biến";
+          manualControls.style.opacity = "1";
+        }
+      }
+
+      // Gửi lệnh thay đổi chế độ
+      function sendModeCommand(mode) {
+        console.log("Sending mode command:", mode);
+        fetch(`http://localhost:8080/door/mode?mode=${mode}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log("Mode change response:", data);
+            if (data.status === "success") {
+              console.log("Mode changed successfully to:", mode);
+            }
+          })
+          .catch(error => {
+            console.error("Error changing mode:", error);
+          });
+      }
+
+      function animateCounter(id) {
+        const el = document.getElementById(id);
+        el.classList.add("counter-change");
+        setTimeout(() => el.classList.remove("counter-change"), 300);
+      }
+
+      function updateDoorAnimation() {
+        const left = document.getElementById("leftDoor");
+        const right = document.getElementById("rightDoor");
+
+        if (doorOpen) {
+          left.classList.add("open-left");
+          right.classList.add("open-right");
+          document.getElementById("doorStatus").innerHTML = "Cửa đang mở";
+          document.getElementById("doorStatus").className = "status-open";
+        } else {
+          left.classList.remove("open-left");
+          right.classList.remove("open-right");
+          document.getElementById("doorStatus").innerHTML = "Cửa đang đóng";
+          document.getElementById("doorStatus").className = "status-close";
+        }
+      }
+
+      function manualOpen() {
+        // Debouncing - tránh spam commands
+        const now = Date.now();
+        if (now - lastCommandTime < 2000) {
+          console.log("Command ignored - too fast");
+          return;
+        }
+        lastCommandTime = now;
+        
+        // Visual feedback
+        const btn = document.getElementById("openBtn");
+        btn.disabled = true;
+        btn.innerHTML = "Đang mở...";
+        
+        console.log("Sending OPEN command...");
+        fetch("http://localhost:8080/door/open")
+          .then(response => {
+            console.log("Response status:", response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log("Open response:", data);
+            if (data.status === "success") {
+              console.log("Door opened successfully");
+            } else {
+              console.error("Failed to open door:", data.message);
+              alert("Lỗi mở cửa: " + data.message);
+            }
+          })
+          .catch(error => {
+            console.error("Error opening door:", error);
+            alert("Không thể kết nối đến server. Kiểm tra backend có chạy không?");
+          })
+          .finally(() => {
+            // Reset button state
+            const btn = document.getElementById("openBtn");
+            btn.disabled = false;
+            btn.innerHTML = "Mở cửa";
+          });
+      }
+
+      function manualClose() {
+        // Debouncing - tránh spam commands
+        const now = Date.now();
+        if (now - lastCommandTime < 2000) {
+          console.log("Command ignored - too fast");
+          return;
+        }
+        lastCommandTime = now;
+        
+        // Visual feedback
+        const btn = document.getElementById("closeBtn");
+        btn.disabled = true;
+        btn.innerHTML = "Đang đóng...";
+        
+        console.log("Sending CLOSE command...");
+        fetch("http://localhost:8080/door/close")
+          .then(response => {
+            console.log("Response status:", response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log("Close response:", data);
+            if (data.status === "success") {
+              console.log("Door closed successfully");
+            } else {
+              console.error("Failed to close door:", data.message);
+              alert("Lỗi đóng cửa: " + data.message);
+            }
+          })
+          .catch(error => {
+            console.error("Error closing door:", error);
+            alert("Không thể kết nối đến server. Kiểm tra backend có chạy không?");
+          })
+          .finally(() => {
+            // Reset button state
+            const btn = document.getElementById("closeBtn");
+            btn.disabled = false;
+            btn.innerHTML = "Đóng cửa";
+          });
+      }
+
+      /* Nhận dữ liệu từ server Java */
+      setInterval(() => {
+        fetch("http://localhost:8080/door/data")
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+          })
+          .then((data) => {
+            console.log("Received data:", data);
+            
+            // Update khoảng cách
+            document.getElementById("distance").innerHTML = data.distance;
+
+            // Update trạng thái cửa từ server (chỉ khi có thay đổi thực sự)
+            if (data.status) {
+              const newDoorState = (data.status === "OPEN" || data.status === "open");
+              if (newDoorState !== doorOpen) {
+                console.log("Door state changed:", doorOpen, "->", newDoorState);
+                doorOpen = newDoorState;
+                updateDoorAnimation();
+              }
+            }
+
+            // Đếm người dựa trên khoảng cách
+            if (data.distance < 50) {
+              if (lastDistance >= 50) {
+                peopleIn++;
+                document.getElementById("peopleIn").innerHTML = peopleIn;
+                animateCounter("peopleIn");
+              }
+            } else {
+              if (lastDistance < 50) {
+                peopleOut++;
+                document.getElementById("peopleOut").innerHTML = peopleOut;
+                animateCounter("peopleOut");
+              }
+            }
+
+            lastDistance = data.distance;
+          })
+          .catch(error => {
+            console.error("Error fetching data:", error);
+            // Không alert liên tục, chỉ log lỗi
+          });
+      }, 3000); // Tăng interval lên 3 giây để tránh conflict
+    </script>
+  </body>
+</html>
